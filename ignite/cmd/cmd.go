@@ -70,6 +70,7 @@ ignite scaffold chain github.com/cosmonaut/mars`,
 	c.AddCommand(NewDocs())
 	c.AddCommand(NewVersion())
 	c.AddCommand(deprecated()...)
+	c.AddCommand(NewTestnet())
 
 	return c
 }
