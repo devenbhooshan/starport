@@ -2,6 +2,7 @@ package akash
 
 import (
 	"bufio"
+	"fmt"
 	"net/rpc"
 
 	"log"
@@ -14,35 +15,46 @@ import (
 	cinpuit "github.com/cosmos/cosmos-sdk/client/input"
 )
 
+const (
+	flagAkashGoRPCServerHost = "akash-go-rpc-server-host"
+	flagAkashGoRPCServerPort = "akash-go-rpc-server-port"
+)
+
 // NewScaffold returns a command that scafolds the config for a network, default is AKASH
 func NewLaunch() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "launch testnet",
 		Short: "launch testnet",
+		Args:  cobra.NoArgs,
 		RunE:  akashLaunchHandler,
 	}
 
 	c.AddCommand()
-
+	c.Flags().String(flagAkashGoRPCServerHost, "localhost", " akash go rpc server host")
+	c.Flags().Int(flagAkashGoRPCServerPort, 8080, " akash go rpc server port")
 	return c
 }
 
 type Args struct{}
 
 func akashLaunchHandler(cmd *cobra.Command, args []string) error {
-	// Todo: Need to take this from config
-	hostname := "localhost"
-	port := ":8081"
-
-	rpcArgs := Args{}
-
-	reply := AccountResponse{}
-
-	client, err := rpc.DialHTTP("tcp", hostname+port)
+	hostname, err := cmd.Flags().GetString(flagAkashGoRPCServerHost)
 	if err != nil {
-		log.Fatal("dialing: ", err)
+		return err
 	}
 
+	port, err := cmd.Flags().GetInt(flagAkashGoRPCServerPort)
+	if err != nil {
+		return err
+	}
+
+	client, err := rpc.DialHTTP("tcp", fmt.Sprintf("%s:%d", hostname, port))
+	if err != nil {
+		log.Fatal("Couldn't connect to the AkashGo RPCServer: Is the Server running? ", err)
+	}
+
+	rpcArgs := Args{}
+	reply := AccountResponse{}
 	err = client.Call("AkashGoRPCService.CreateAccount", rpcArgs, &reply)
 	if err != nil {
 		log.Fatal("error: ", err)
@@ -61,7 +73,6 @@ func akashLaunchHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	log.Println("Account funded")
-
 	log.Println("Starting Certificate Creation")
 
 	re := ""
@@ -73,11 +84,12 @@ func akashLaunchHandler(cmd *cobra.Command, args []string) error {
 	log.Println("Certificate Creation Done")
 
 	// Todo: Need to take this from the user or from the config
-	sdlFilePath := "./deployment.yaml"
-	log.Printf("Staring Deployment using SDL file(with full path): %s", sdlFilePath)
+	sdlFilePathForWeb := "./akash/SDL/deploy-web.yml"
+
+	log.Printf("Staring Deployment using SDL file(with full path): %s", sdlFilePathForWeb)
 
 	createDeploymentRequest := CreateDeploymentRequest{
-		SDLFilePath: sdlFilePath,
+		SDLFilePath: sdlFilePathForWeb,
 	}
 
 	de := DeploymentResponse{}

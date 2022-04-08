@@ -65,6 +65,10 @@ func akashScaffoldHandler(cmd *cobra.Command, args []string) error {
 			return fmt.Errorf("failed to create file: %v", err)
 		}
 	}
+
+	log.Println("Scaffolding completed")
+	log.Println("Check the akash folder for the generated files")
+	log.Println("Please run `starport testnet launch` to deploy the network")
 	return nil
 }
 
@@ -73,8 +77,6 @@ func createFileFromTemplate(fileName, fileContent, fileType string) error {
 	if err != nil {
 		return fmt.Errorf("failed to parse template: %v", err)
 	}
-
-	log.Println("Preparing template files...")
 
 	folder := fmt.Sprintf("./akash/%s", fileType)
 	out := path.Join(folder, strings.TrimSuffix(fileName, ".tpl"))
