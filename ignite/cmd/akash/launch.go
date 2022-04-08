@@ -3,6 +3,7 @@ package akash
 import (
 	"bufio"
 	"fmt"
+	"io/ioutil"
 	"net/rpc"
 	"path/filepath"
 
@@ -91,8 +92,14 @@ func akashLaunchHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	log.Printf("Staring Deployment using SDL file(with full path): %s", absoluteSDLPathForWeb)
+
+	sdlFileContents, err := ioutil.ReadFile(sdlFilePathForWeb)
+	if err != nil {
+		log.Fatal("Failed to read deployment file: ", err)
+	}
+
 	createDeploymentRequest := CreateDeploymentRequest{
-		SDLFilePath: absoluteSDLPathForWeb,
+		SDLFileContents: sdlFileContents,
 	}
 
 	de := DeploymentResponse{}
@@ -175,8 +182,8 @@ func akashLaunchHandler(cmd *cobra.Command, args []string) error {
 		log.Println("Starting Manifest Send")
 
 		sendManifestRequest := ManifestSendRequest{
-			DSeq:        dseq,
-			SDLFilePath: absoluteSDLPathForWeb,
+			DSeq:            dseq,
+			SDLFileContents: sdlFileContents,
 		}
 
 		sendManifestResponse := ManifestSendResponse{}
@@ -215,8 +222,8 @@ func akashLaunchHandler(cmd *cobra.Command, args []string) error {
 
 // Todo: generate these from the proto
 type ManifestSendRequest struct {
-	SDLFilePath string
-	DSeq        uint64
+	SDLFileContents []byte
+	DSeq            uint64
 }
 
 type ManifestSendResponse struct {
@@ -232,7 +239,7 @@ type DeploymentResponse struct {
 }
 
 type CreateDeploymentRequest struct {
-	SDLFilePath string
+	SDLFileContents []byte
 }
 
 type BidRequest struct {
