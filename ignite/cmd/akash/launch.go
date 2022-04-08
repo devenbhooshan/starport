@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"net/rpc"
+	"path/filepath"
 
 	"log"
 	"os"
@@ -50,7 +51,7 @@ func akashLaunchHandler(cmd *cobra.Command, args []string) error {
 
 	client, err := rpc.DialHTTP("tcp", fmt.Sprintf("%s:%d", hostname, port))
 	if err != nil {
-		log.Fatal("Couldn't connect to the AkashGo RPCServer: Is the Server running? ", err)
+		log.Fatal("Couldn't connect to the AkashGo RPCServer: Is the Server running? \n error: ", err)
 	}
 
 	rpcArgs := Args{}
@@ -83,13 +84,15 @@ func akashLaunchHandler(cmd *cobra.Command, args []string) error {
 
 	log.Println("Certificate Creation Done")
 
-	// Todo: Need to take this from the user or from the config
 	sdlFilePathForWeb := "./akash/SDL/deploy-web.yml"
+	absoluteSDLPathForWeb, err := filepath.Abs(sdlFilePathForWeb)
+	if err == nil {
+		fmt.Println("Absolute:", absoluteSDLPathForWeb)
+	}
 
-	log.Printf("Staring Deployment using SDL file(with full path): %s", sdlFilePathForWeb)
-
+	log.Printf("Staring Deployment using SDL file(with full path): %s", absoluteSDLPathForWeb)
 	createDeploymentRequest := CreateDeploymentRequest{
-		SDLFilePath: sdlFilePathForWeb,
+		SDLFilePath: absoluteSDLPathForWeb,
 	}
 
 	de := DeploymentResponse{}
@@ -173,7 +176,7 @@ func akashLaunchHandler(cmd *cobra.Command, args []string) error {
 
 		sendManifestRequest := ManifestSendRequest{
 			DSeq:        dseq,
-			SDLFilePath: "deployment.yaml",
+			SDLFilePath: absoluteSDLPathForWeb,
 		}
 
 		sendManifestResponse := ManifestSendResponse{}

@@ -11,9 +11,9 @@ var (
 	//go:embed docker/dockerfileChain.tpl
 	FSAkashDockerFileChain string
 
-	// go:embed SDL/deploy-web.yml.tpl
+	//go:embed SDL/deploy-web.yml.tpl
 	FSAkashSDLWeb string
 
-	// go:embed SDL/deploy-chain.yml.tpl
+	//go:embed SDL/deploy-chain.yml.tpl
 	FSAkashSDLChain string
 )

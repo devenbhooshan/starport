@@ -12,9 +12,35 @@ import (
 	"github.com/tendermint/starport/starport/cmd/akash/templates"
 )
 
+var allFiles = []struct {
+	fileName     string
+	fileType     string
+	fileContents string
+}{
+	{
+		fileName:     "dockerfileWeb.tpl",
+		fileType:     "docker",
+		fileContents: templates.FSAkashDockerFileWeb,
+	},
+	{
+		fileName:     "dockerfileChain.tpl",
+		fileType:     "docker",
+		fileContents: templates.FSAkashDockerFileChain,
+	},
+	{
+		fileName:     "deploy-chain.yml.tpl",
+		fileType:     "SDL",
+		fileContents: templates.FSAkashSDLChain,
+	},
+	{
+		fileName:     "deploy-web.yml.tpl",
+		fileType:     "SDL",
+		fileContents: templates.FSAkashSDLWeb,
+	},
+}
+
 // NewScaffold returns a command that scafolds the config for a network, default is AKASH
 func NewScaffold() *cobra.Command {
-
 	c := &cobra.Command{
 		Use:   "scaffold testnet launch configs for a network, default is AKASH",
 		Short: "scaffold a new account configs for a network, default is AKASH",
@@ -28,33 +54,6 @@ func NewScaffold() *cobra.Command {
 
 func akashScaffoldHandler(cmd *cobra.Command, args []string) error {
 	log.Println("Starting scaffolding...")
-
-	allFiles := []struct {
-		fileName     string
-		fileType     string
-		fileContents string
-	}{
-		{
-			fileName:     "dockerfileWeb.tpl",
-			fileType:     "docker",
-			fileContents: templates.FSAkashDockerFileWeb,
-		},
-		{
-			fileName:     "dockerfileChain.tpl",
-			fileType:     "docker",
-			fileContents: templates.FSAkashDockerFileChain,
-		},
-		{
-			fileName:     "deploy-chain.yml.tpl",
-			fileType:     "SDL",
-			fileContents: templates.FSAkashSDLChain,
-		},
-		{
-			fileName:     "deploy-web.yml.tpl",
-			fileType:     "SDL",
-			fileContents: templates.FSAkashSDLWeb,
-		},
-	}
 
 	for _, file := range allFiles {
 		fileName := file.fileName
