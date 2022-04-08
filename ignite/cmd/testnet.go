@@ -17,6 +17,7 @@ func NewTestnet() *cobra.Command {
 
 	c.AddCommand(
 		akash.NewScaffold(),
+		akash.NewLaunch(),
 	)
 
 	return c
