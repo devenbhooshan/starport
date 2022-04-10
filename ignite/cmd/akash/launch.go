@@ -215,7 +215,9 @@ func akashLaunchHandler(cmd *cobra.Command, args []string) error {
 		}
 
 		log.Println(leaseResponse)
-		log.Printf("Open http://%s:%d/ to view the deployment", leaseResponse.Host, leaseResponse.ExternalPort)
+		for _, release := range leaseResponse.Releases {
+			log.Printf("Open http://%s:%d/ to view the deployment", release.Host, release.ExternalPort)
+		}
 		return nil
 	}
 }
@@ -275,11 +277,15 @@ type LeaseStatusRequest struct {
 	OSeq     uint32
 }
 
-type LeaseStatusResponse struct {
+type Release struct {
 	Host         string
 	Port         uint16
 	ExternalPort uint16
 	Proto        string
 	Available    int32
 	Name         string
+}
+
+type LeaseStatusResponse struct {
+	Releases []Release
 }
