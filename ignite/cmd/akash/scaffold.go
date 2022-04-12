@@ -67,7 +67,7 @@ func akashScaffoldHandler(cmd *cobra.Command, args []string) error {
 
 	log.Println("Scaffolding completed")
 	log.Println("Check the akash folder for the generated files")
-	log.Println("Please run `starport testnet launch` to deploy the network")
+	log.Println("Please run `ignite testnet launch` to deploy the network")
 	return nil
 }
 
