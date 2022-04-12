@@ -8,8 +8,8 @@ import (
 	"path"
 	"strings"
 
+	"github.com/ignite-hq/cli/ignite/cmd/akash/templates"
 	"github.com/spf13/cobra"
-	"github.com/tendermint/starport/starport/cmd/akash/templates"
 )
 
 var allFiles = []struct {
