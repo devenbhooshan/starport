@@ -1,11 +1,10 @@
 // this tool generates Ignite CLI docs to be placed in the docs/cli dir and deployed
-// on docs.starport.network.
+// on docs.ignite.com
 package main
 
 import (
 	"bufio"
 	"bytes"
-	"context"
 	"flag"
 	"fmt"
 	"io"
@@ -37,7 +36,7 @@ func main() {
 	outPath := flag.String("out", ".", ".md file path to place Ignite CLI docs inside")
 	flag.Parse()
 
-	if err := generate(ignitecmd.New(context.Background()), *outPath); err != nil {
+	if err := generate(ignitecmd.New(), *outPath); err != nil {
 		log.Fatal(err)
 	}
 }

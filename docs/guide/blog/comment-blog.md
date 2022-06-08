@@ -163,6 +163,11 @@ func (k msgServer) CreateComment(goCtx context.Context, msg *types.MsgCreateComm
 
 	post := k.GetPost(ctx, msg.PostID)
 	postId := post.Id
+	
+	// Check if the Post Exists for which a comment is being created
+	if msg.PostID == 0 {
+		return nil, sdkerrors.Wrapf(types.ErrID, "Post Blog Id does not exist for which comment with Blog Id %d was made", msg.PostID)
+	}
 
 	// Create variable of type comment
 	var comment = types.Comment{
@@ -173,12 +178,7 @@ func (k msgServer) CreateComment(goCtx context.Context, msg *types.MsgCreateComm
 		PostID:    msg.PostID,
 		CreatedAt: ctx.BlockHeight(),
 	}
-
-	// Check if the Post Exists for which a comment is being created
-	if msg.PostID > postId && msg.PostID == postId {
-		return nil, sdkerrors.Wrapf(types.ErrID, "Post Blog Id does not exist for which comment with Blog Id %d was made", msg.PostID)
-	}
-
+	
 	// Check if the comment is older than the Post. If more than 100 blocks, then return error.
 	if comment.CreatedAt > post.CreatedAt+100 {
 		return nil, sdkerrors.Wrapf(types.ErrCommentOld, "Comment created at %d is older than post created at %d", comment.CreatedAt, post.CreatedAt)
@@ -255,7 +255,7 @@ In `x/blog/keeper/post.go`, add a new function to get the post:
 ```go
 import (
 	"encoding/binary"
-	"github.com/cosmonaut/blog/x/blog/types"
+	"github.com/username/blog/x/blog/types"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -350,7 +350,7 @@ package keeper
 	"context"
 	"encoding/binary"
 
-	"github.com/cosmonaut/blog/x/blog/types"
+	"github.com/username/blog/x/blog/types"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -413,7 +413,7 @@ After the types are defined in proto files, you can implement post querying logi
 import (
 	"context"
 
-	"github.com/cosmonaut/blog/x/blog/types"
+	"github.com/username/blog/x/blog/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -489,7 +489,7 @@ blogd tx blog create-post Uno "This is the first post" --from alice
 As before, you are prompted to confirm the transaction:
 
 ```bash
-"body":{"messages":[{"@type":"/cosmonaut.blog.blog.MsgCreatePost","creator":"cosmos1dad8xvsj3dse928r52yayygghwvsggvzlm730p","title":"foo","body":"bar"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
+"body":{"messages":[{"@type":"/username.blog.blog.MsgCreatePost","creator":"cosmos1dad8xvsj3dse928r52yayygghwvsggvzlm730p","title":"foo","body":"bar"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
 
 confirm transaction before signing and broadcasting [y/N]: y
 ```
@@ -507,7 +507,7 @@ blogd tx blog create-comment 0  Uno "This is the first comment" --from alice
 ```
 
 ```bash
-{"body":{"messages":[{"@type":"/cosmonaut.blog.blog.MsgCreateComment","creator":"cosmos17pvwgu36fu37j8y9gc4pasxsj3p26ghmlqvngd","id":"0","title":"Uno","body":"This is the first comment","PostID":"2","createdAt":"0"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
+{"body":{"messages":[{"@type":"/username.blog.blog.MsgCreateComment","creator":"cosmos17pvwgu36fu37j8y9gc4pasxsj3p26ghmlqvngd","id":"0","title":"Uno","body":"This is the first comment","PostID":"2","createdAt":"0"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
 ```
 
 When prompted, press Enter to confirm the transaction:

@@ -53,7 +53,7 @@ Use Ignite CLI to scaffold the blockchain app and the blog module.
 To scaffold a new blockchain named `planet`:
 
 ```go
-ignite scaffold chain github.com/cosmonaut/planet --no-module
+ignite scaffold chain github.com/username/planet --no-module
 cd planet
 ```
 
@@ -75,26 +75,26 @@ A new directory with the code for an IBC module is created in `planet/x/blog`. M
 
 Next, create the CRUD actions for the blog module types.
 
-Use the `ignite type` command to scaffold the boilerplate code for the create, read, update, and delete (CRUD) actions.
+Use the `ignite scaffold list` command to scaffold the boilerplate code for the create, read, update, and delete (CRUD) actions.
 
-These `ignite type` commands create CRUD code for the following transactions:
+These `ignite scaffold list` commands create CRUD code for the following transactions:
 
 - Creating blog posts
 
   ```go
-  ignite scaffold list post title content --module blog
+  ignite scaffold list post title content creator --no-message --module blog
   ```
 
 - Processing acknowledgments for sent posts
 
   ```go
-  ignite scaffold list sentPost postID title chain --module blog
+  ignite scaffold list sentPost postID title chain creator --no-message --module blog
   ```
 
 - Managing post timeouts
 
   ```go
-  ignite scaffold list timedoutPost title chain --module blog
+  ignite scaffold list timedoutPost title chain creator --no-message --module blog
   ```
 
 The scaffolded code includes proto files for defining data structures, messages, messages handlers, keepers for modifying the state, and CLI commands.
@@ -105,7 +105,7 @@ The scaffolded code includes proto files for defining data structures, messages,
 ignite scaffold list [typeName] [field1] [field2] ... [flags]
 ```
 
-The first argument of the `ignite type [typeName]` command specifies the name of the type being created. For the blog app, you created `post`, `sentPost`, and `timedoutPost` types.
+The first argument of the `ignite scaffold list [typeName]` command specifies the name of the type being created. For the blog app, you created `post`, `sentPost`, and `timedoutPost` types.
 
 The next arguments define the fields that are associated with the type. For the blog app, you created `title`, `content`, `postID`, and `chain` fields.
 

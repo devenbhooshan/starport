@@ -44,10 +44,10 @@ func WithCampaignTotalSupply(totalSupply sdk.Coins) Prop {
 	}
 }
 
-// Campaign fetches the campaign from Starport Network
+// Campaign fetches the campaign from Network
 func (n Network) Campaign(ctx context.Context, campaignID uint64) (networktypes.Campaign, error) {
 	n.ev.Send(events.New(events.StatusOngoing, "Fetching campaign information"))
-	res, err := campaigntypes.NewQueryClient(n.cosmos.Context).Campaign(ctx, &campaigntypes.QueryGetCampaignRequest{
+	res, err := n.campaignQuery.Campaign(ctx, &campaigntypes.QueryGetCampaignRequest{
 		CampaignID: campaignID,
 	})
 	if err != nil {
@@ -56,12 +56,12 @@ func (n Network) Campaign(ctx context.Context, campaignID uint64) (networktypes.
 	return networktypes.ToCampaign(res.Campaign), nil
 }
 
-// Campaigns fetches the campaigns from Starport Network
+// Campaigns fetches the campaigns from Network
 func (n Network) Campaigns(ctx context.Context) ([]networktypes.Campaign, error) {
 	var campaigns []networktypes.Campaign
 
 	n.ev.Send(events.New(events.StatusOngoing, "Fetching campaigns information"))
-	res, err := campaigntypes.NewQueryClient(n.cosmos.Context).
+	res, err := n.campaignQuery.
 		CampaignAll(ctx, &campaigntypes.QueryAllCampaignRequest{})
 	if err != nil {
 		return campaigns, err
@@ -75,7 +75,7 @@ func (n Network) Campaigns(ctx context.Context) ([]networktypes.Campaign, error)
 	return campaigns, nil
 }
 
-// CreateCampaign creates a campaign in Starport Network
+// CreateCampaign creates a campaign in Network
 func (n Network) CreateCampaign(name, metadata string, totalSupply sdk.Coins) (uint64, error) {
 	n.ev.Send(events.New(events.StatusOngoing, fmt.Sprintf("Creating campaign %s", name)))
 
@@ -146,8 +146,8 @@ func (n Network) UpdateCampaign(
 	if p.name != "" || len(p.metadata) > 0 {
 		msgs = append(msgs, campaigntypes.NewMsgEditCampaign(
 			account,
-			p.name,
 			id,
+			p.name,
 			p.metadata,
 		))
 	}

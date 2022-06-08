@@ -104,7 +104,7 @@ func (n Network) Join(
 	}
 
 	if !o.accountAmount.IsZero() {
-		if err := n.sendAccountRequest(
+		if err := n.ensureAccount(
 			ctx,
 			genesisPath,
 			isCustomGentx,
@@ -119,16 +119,15 @@ func (n Network) Join(
 	return n.sendValidatorRequest(ctx, launchID, peer, accountAddress, gentx, gentxInfo)
 }
 
-// sendAccountRequest creates an add AddAccount request message.
-func (n Network) sendAccountRequest(
+// ensureAccount creates an add AddAccount request message.
+func (n Network) ensureAccount(
 	ctx context.Context,
 	genesisPath string,
 	isCustomGentx bool,
 	launchID uint64,
-	accountAddress string,
+	address string,
 	amount sdk.Coins,
 ) (err error) {
-	address := n.account.Address(networktypes.SPN)
 	n.ev.Send(events.New(events.StatusOngoing, "Verifying account already exists "+address))
 
 	// if is custom gentx path, avoid to check account into genesis from the home folder
@@ -151,33 +150,7 @@ func (n Network) sendAccountRequest(
 		return fmt.Errorf("account %s already exist", address)
 	}
 
-	msg := launchtypes.NewMsgRequestAddAccount(
-		n.account.Address(networktypes.SPN),
-		launchID,
-		accountAddress,
-		amount,
-	)
-
-	n.ev.Send(events.New(events.StatusOngoing, "Broadcasting account transactions"))
-	res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
-	if err != nil {
-		return err
-	}
-
-	var requestRes launchtypes.MsgRequestAddAccountResponse
-	if err := res.Decode(&requestRes); err != nil {
-		return err
-	}
-
-	if requestRes.AutoApproved {
-		n.ev.Send(events.New(events.StatusDone, "Account added to the network by the coordinator!"))
-	} else {
-		n.ev.Send(events.New(events.StatusDone,
-			fmt.Sprintf("Request %d to add account to the network has been submitted!",
-				requestRes.RequestID),
-		))
-	}
-	return nil
+	return n.sendAccountRequest(launchID, address, amount)
 }
 
 // sendValidatorRequest creates the RequestAddValidator message into the SPN
@@ -233,7 +206,7 @@ func (n Network) sendValidatorRequest(
 
 // hasValidator verify if the validator already exist into the SPN store
 func (n Network) hasValidator(ctx context.Context, launchID uint64, address string) (bool, error) {
-	_, err := launchtypes.NewQueryClient(n.cosmos.Context).GenesisValidator(ctx, &launchtypes.QueryGetGenesisValidatorRequest{
+	_, err := n.launchQuery.GenesisValidator(ctx, &launchtypes.QueryGetGenesisValidatorRequest{
 		LaunchID: launchID,
 		Address:  address,
 	})
@@ -247,7 +220,7 @@ func (n Network) hasValidator(ctx context.Context, launchID uint64, address stri
 
 // hasAccount verify if the account already exist into the SPN store
 func (n Network) hasAccount(ctx context.Context, launchID uint64, address string) (bool, error) {
-	_, err := launchtypes.NewQueryClient(n.cosmos.Context).VestingAccount(ctx, &launchtypes.QueryGetVestingAccountRequest{
+	_, err := n.launchQuery.VestingAccount(ctx, &launchtypes.QueryGetVestingAccountRequest{
 		LaunchID: launchID,
 		Address:  address,
 	})
@@ -257,7 +230,7 @@ func (n Network) hasAccount(ctx context.Context, launchID uint64, address string
 		return false, err
 	}
 
-	_, err = launchtypes.NewQueryClient(n.cosmos.Context).GenesisAccount(ctx, &launchtypes.QueryGetGenesisAccountRequest{
+	_, err = n.launchQuery.GenesisAccount(ctx, &launchtypes.QueryGetGenesisAccountRequest{
 		LaunchID: launchID,
 		Address:  address,
 	})

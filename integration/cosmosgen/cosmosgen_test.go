@@ -15,7 +15,7 @@ import (
 func TestCosmosGen(t *testing.T) {
 	var (
 		env          = envtest.New(t)
-		path         = env.Scaffold("blog")
+		path         = env.Scaffold("github.com/test/blog")
 		dirGenerated = filepath.Join(path, "vue/src/store/generated")
 	)
 
@@ -30,6 +30,7 @@ func TestCosmosGen(t *testing.T) {
 				envtest.IgniteApp,
 				"s",
 				"module",
+				"--yes",
 				withMsgModuleName,
 			),
 			step.Workdir(path),
@@ -42,6 +43,7 @@ func TestCosmosGen(t *testing.T) {
 				envtest.IgniteApp,
 				"s",
 				"message",
+				"--yes",
 				"mymessage",
 				"myfield1",
 				"myfield2:bool",
@@ -58,6 +60,7 @@ func TestCosmosGen(t *testing.T) {
 				envtest.IgniteApp,
 				"s",
 				"module",
+				"--yes",
 				withoutMsgModuleName,
 			),
 			step.Workdir(path),
@@ -70,6 +73,7 @@ func TestCosmosGen(t *testing.T) {
 				envtest.IgniteApp,
 				"s",
 				"type",
+				"--yes",
 				"mytype",
 				"mytypefield",
 				"--module",
@@ -85,6 +89,7 @@ func TestCosmosGen(t *testing.T) {
 				envtest.IgniteApp,
 				"s",
 				"query",
+				"--yes",
 				"myQuery",
 				"mytypefield",
 				"--module",
@@ -102,6 +107,7 @@ func TestCosmosGen(t *testing.T) {
 				envtest.IgniteApp,
 				"g",
 				"vuex",
+				"--yes",
 				"--proto-all-modules",
 			),
 			step.Workdir(path),
@@ -110,6 +116,7 @@ func TestCosmosGen(t *testing.T) {
 
 	var expectedCosmosModules = []string{
 		"cosmos.auth.v1beta1",
+		"cosmos.authz.v1beta1",
 		"cosmos.bank.v1beta1",
 		"cosmos.base.tendermint.v1beta1",
 		"cosmos.crisis.v1beta1",

@@ -1,13 +1,16 @@
 package ignitecmd
 
 import (
+	"errors"
 	"fmt"
 
+	"github.com/AlecAivazis/survey/v2"
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 
-	"github.com/ignite-hq/cli/ignite/pkg/clispinner"
+	"github.com/ignite-hq/cli/ignite/pkg/cliui/clispinner"
 	"github.com/ignite-hq/cli/ignite/pkg/placeholder"
+	"github.com/ignite-hq/cli/ignite/pkg/xgit"
 	"github.com/ignite-hq/cli/ignite/services/scaffolder"
 )
 
@@ -33,17 +36,17 @@ CRUD stands for "create, read, update, delete".`,
 	}
 
 	c.AddCommand(NewScaffoldChain())
-	c.AddCommand(NewScaffoldModule())
-	c.AddCommand(NewScaffoldList())
-	c.AddCommand(NewScaffoldMap())
-	c.AddCommand(NewScaffoldSingle())
-	c.AddCommand(NewScaffoldType())
-	c.AddCommand(NewScaffoldMessage())
-	c.AddCommand(NewScaffoldQuery())
-	c.AddCommand(NewScaffoldPacket())
-	c.AddCommand(NewScaffoldBandchain())
-	c.AddCommand(NewScaffoldVue())
-	c.AddCommand(NewScaffoldFlutter())
+	c.AddCommand(addGitChangesVerifier(NewScaffoldModule()))
+	c.AddCommand(addGitChangesVerifier(NewScaffoldList()))
+	c.AddCommand(addGitChangesVerifier(NewScaffoldMap()))
+	c.AddCommand(addGitChangesVerifier(NewScaffoldSingle()))
+	c.AddCommand(addGitChangesVerifier(NewScaffoldType()))
+	c.AddCommand(addGitChangesVerifier(NewScaffoldMessage()))
+	c.AddCommand(addGitChangesVerifier(NewScaffoldQuery()))
+	c.AddCommand(addGitChangesVerifier(NewScaffoldPacket()))
+	c.AddCommand(addGitChangesVerifier(NewScaffoldBandchain()))
+	c.AddCommand(addGitChangesVerifier(NewScaffoldVue()))
+	c.AddCommand(addGitChangesVerifier(NewScaffoldFlutter()))
 	// c.AddCommand(NewScaffoldWasm())
 
 	return c
@@ -91,7 +94,12 @@ func scaffoldType(
 		return err
 	}
 
-	sm, err := sc.AddType(cmd.Context(), typeName, placeholder.New(), kind, options...)
+	cacheStorage, err := newCache(cmd)
+	if err != nil {
+		return err
+	}
+
+	sm, err := sc.AddType(cmd.Context(), cacheStorage, typeName, placeholder.New(), kind, options...)
 	if err != nil {
 		return err
 	}
@@ -107,6 +115,38 @@ func scaffoldType(
 	fmt.Printf("\n🎉 %s added. \n\n", typeName)
 
 	return nil
+}
+
+func addGitChangesVerifier(cmd *cobra.Command) *cobra.Command {
+	cmd.Flags().AddFlagSet(flagSetYes())
+
+	preRunFun := cmd.PreRunE
+	cmd.PreRunE = func(cmd *cobra.Command, args []string) error {
+		if preRunFun != nil {
+			if err := preRunFun(cmd, args); err != nil {
+				return err
+			}
+		}
+
+		appPath := flagGetPath(cmd)
+
+		changesCommitted, err := xgit.AreChangesCommitted(appPath)
+		if err != nil {
+			return err
+		}
+
+		if !getYes(cmd) && !changesCommitted {
+			var confirmed bool
+			prompt := &survey.Confirm{
+				Message: "Your saved project changes have not been committed. To enable reverting to your current state, commit your saved changes. Do you want to proceed with scaffolding without committing your saved changes",
+			}
+			if err := survey.AskOne(prompt, &confirmed); err != nil || !confirmed {
+				return errors.New("said no")
+			}
+		}
+		return nil
+	}
+	return cmd
 }
 
 func flagSetScaffoldType() *flag.FlagSet {

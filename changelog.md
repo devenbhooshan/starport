@@ -1,8 +1,57 @@
 # Changelog
 
-## [`v0.20.0`](https://github.com/ignite-hq/cli/releases/tag/v0.20.5)
+## [`v0.21.2`](https://github.com/ignite-hq/cli/releases/tag/v0.21.2)
 
-Our new name is **Ignite**!
+### Fixes 
+
+- Set min. gas to zero when running `chain` command set 
+
+## [`v0.21.1`](https://github.com/ignite-hq/cli/releases/tag/v0.21.1)
+
+### Features 
+
+- Add compatibility to run chains built with Cosmos-SDK `v0.46.0-alpha1` and above
+- Scaffold chains now will have `auth` module enabled by default
+
+### Fixes
+
+- Fixed shell completion generation
+- Make sure proto package names are valid when using simple app names
+
+## [`v0.21.0`](https://github.com/ignite-hq/cli/releases/tag/v0.21.0)
+
+### Features 
+
+- Support simple app names when scaffolding chains. e.g.: `ignite scaffold chain mars`
+- Ask confirmation when scaffolding over changes that are not committed yet 
+
+## [`v0.20.4`](https://github.com/ignite-hq/cli/releases/tag/v0.20.4)
+
+### Fixes
+
+- Use `protoc` binary compiled in an older version of macOS AMD64 for backwards compatibility in code generation
+
+## [`v0.20.3`](https://github.com/ignite-hq/cli/releases/tag/v0.20.3)
+
+### Fixes
+
+- Use latest version of CLI in templates to fix Linux ARM support _(It's now possible to develop chains in Linux ARM machines and since the chain depends on the CLI in its go.mod, it needs to use the latest version that support ARM targets)_
+
+## [`v0.20.2`](https://github.com/ignite-hq/cli/releases/tag/v0.20.2)
+
+### Fixes
+
+- Use `unsafe-reset-all` cmd under `tendermint` cmd for chains that use `=> v0.45.3` version of Cosmos SDK
+
+## [`v0.20.1`](https://github.com/ignite-hq/cli/releases/tag/v0.20.1)
+
+### Features
+
+- Release the CLI with Linux ARM and native M1 binaries
+
+## [`v0.20.0`](https://github.com/ignite-hq/cli/releases/tag/v0.20.0)
+
+Our new name is **Ignite CLI**!
 
 **IMPORTANT!** This upgrade renames `starport` command to `ignite`. From now on, use `ignite` command to access the CLI.
 
